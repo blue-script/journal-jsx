@@ -5,45 +5,36 @@ import Header from './components/Header/Header'
 import JournalList from './components/JournalList/JournalList'
 import JournalAddButton from './components/JournalAddButton/JournalAddButton'
 import JournalForm from './components/JournalForm/JournalForm'
-import { useState } from 'react'
+import { useLocalStorage } from './hooks/use-localstorage.hook'
 
-const INITIAL_DATA = [
-  // {
-  //   id: 1,
-  //   title: 'Подготовка к обновлению курсов',
-  //   date: new Date(),
-  //   text: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit.'
-  // },
-  // {
-  //   id: 2,
-  //   title: 'Поход в горы',
-  //   date: new Date(),
-  //   text: 'Думал что очень много времени.'
-  // }
-]
+function mapItems(items) {
+  return !items
+    ? []
+    : items.map(i => ({ ...i, date: new Date(i.date) }))
+}
 
 function App() {
-  const [items, setItems] = useState(INITIAL_DATA)
+  const [items, setItems] = useLocalStorage('data')
 
   const addItem = (item) => {
-    setItems(prev => [...prev, {
-      id: prev.length > 0
-        ? Math.max(...prev.map(i => i.id)) + 1
-        : 1,
-      title: item.title,
-      date: new Date(item.date),
-      text: item.post
-    }])
+    setItems([
+      ...mapItems(items),
+      {
+        id: items && items.length > 0
+          ? Math.max(...items.map(i => i.id)) + 1
+          : 1,
+        title: item.title,
+        date: new Date(item.date),
+        post: item.post
+      }])
   }
-
-
 
   return (
     <div className='app'>
       <LeftPanel>
         <Header />
         <JournalAddButton />
-        <JournalList items={items} />
+        <JournalList items={mapItems(items)} />
       </LeftPanel>
       <Body>
         <JournalForm onSubmit={addItem} />

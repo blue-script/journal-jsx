@@ -1,6 +1,6 @@
 import './JournalItem.css'
 
-function JournalItem({ title, date, text }) {
+function JournalItem({ title, date, post }) {
 
   const formatedDate = new Intl.DateTimeFormat('ru-RU').format(date)
 
@@ -14,7 +14,7 @@ function JournalItem({ title, date, text }) {
           {formatedDate}
         </div>
         <div className="journal-item__text">
-          {text}
+          {post}
         </div>
       </h2>
     </>
