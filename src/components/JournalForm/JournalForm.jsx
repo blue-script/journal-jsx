@@ -1,9 +1,10 @@
 import s from './JournalForm.module.css'
-import { useEffect, useReducer, useRef } from 'react'
+import { useContext, useEffect, useReducer, useRef } from 'react'
 import Button from '../Button/Button'
 import cn from 'classnames'
 import { INITIAL_STATE, formReducer } from './JournalForm.state'
 import Input from '../Input/Input'
+import { UserContext } from '../../context/user.context'
 
 function JournalForm({ onSubmit }) {
   const [formState, dispatchForm] = useReducer(formReducer, INITIAL_STATE)
@@ -11,6 +12,7 @@ function JournalForm({ onSubmit }) {
   const titleRef = useRef()
   const dateRef = useRef()
   const postRef = useRef()
+  const { userId } = useContext(UserContext)
 
   const focusError = (isValid) => {
     switch (true) {
@@ -23,7 +25,6 @@ function JournalForm({ onSubmit }) {
       case !isValid.post:
         postRef.current.focus()
         break
-
     }
   }
 
@@ -43,10 +44,16 @@ function JournalForm({ onSubmit }) {
 
   useEffect(() => {
     if (isFormReadyToSubmit) {
-      onSubmit(values)
+      onSubmit(values, userId)
       dispatchForm({ type: 'CLEAR' })
     }
   }, [isFormReadyToSubmit, onSubmit, values])
+
+  useEffect(() => {
+    dispatchForm({
+      type: 'SET_VALUE', payload: { userId }
+    })
+  }, [userId])
 
   const onChange = (e) => {
     dispatchForm({
@@ -61,7 +68,6 @@ function JournalForm({ onSubmit }) {
     dispatchForm({ type: 'SUBMIT' })
   }
 
-
   return (
     <form className={s['journal-form']} onSubmit={addJournalItem}>
       <div className={s.title_container}>
@@ -74,10 +80,8 @@ function JournalForm({ onSubmit }) {
           onChange={onChange}
           appearance='title'
         />
-
         <img src="/public/archive.svg" alt="archive icon" />
       </div>
-
       <div className={s['wrapper_date_tag']}>
         <div className={s['form-row']}>
           <label htmlFor="date" className={s['form-label']}>
