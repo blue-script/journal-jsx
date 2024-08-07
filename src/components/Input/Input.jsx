@@ -9,7 +9,7 @@ const Input = forwardRef(function Input({ className, isValid = true, appearance,
       {...rest}
       ref={ref}
       className={
-        cn(className, s['Input'], {
+        cn(className, s['input'], {
           [s['invalid']]: !isValid,
           [s['input-title']]: appearance === 'title'
         })

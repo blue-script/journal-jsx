@@ -1,11 +1,10 @@
 import SelectUser from '../SelectUser/SelectUser'
-import s from './Header.module.css'
+import Logo from '../Logo/Logo'
 
 function Header() {
-
   return (
     <>
-      <img className={s['logo']} src="/public/logo.svg" alt="logo journal" />
+      <Logo image='/public/logo.svg' />
       <SelectUser />
     </>
   )

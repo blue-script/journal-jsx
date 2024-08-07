@@ -5,12 +5,24 @@
   width: 100%;
 }
 
+.delete {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+}
+
+.delete:hover {
+  background: rgb(255, 255, 255, 0.05);
+  border-radius: 50%;
+}
+
 .title_container {
   display: flex;
   justify-content: space-between;
 }
-
-
 
 .wrapper_date_tag {
   display: flex;

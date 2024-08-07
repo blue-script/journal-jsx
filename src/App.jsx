@@ -7,6 +7,7 @@ import JournalAddButton from './components/JournalAddButton/JournalAddButton'
 import JournalForm from './components/JournalForm/JournalForm'
 import { useLocalStorage } from './hooks/use-localstorage.hook'
 import { UserContextProvider } from './context/user.context'
+import { useState } from 'react'
 
 function mapItems(items) {
   return !items
@@ -16,17 +17,40 @@ function mapItems(items) {
 
 function App() {
   const [items, setItems] = useLocalStorage('data')
+  const [selectedItem, setSelectedItem] = useState(null)
 
   const addItem = (item) => {
-    setItems([
-      ...mapItems(items),
-      {
-        ...item,
-        id: items && items.length > 0
-          ? Math.max(...items.map(i => i.id)) + 1
-          : 1,
-        date: new Date(item.date)
-      }])
+    if (!item.id) {
+      setItems([
+        ...mapItems(items),
+        {
+          ...item,
+          id: items && items.length > 0
+            ? Math.max(...items.map(i => i.id)) + 1
+            : 1,
+          date: new Date(item.date)
+        }
+      ])
+    } else {
+      setItems([
+        ...mapItems(items).map(i => {
+          if (i.id === item.id) {
+            return { ...item }
+          }
+
+          return i
+        })
+      ])
+    }
+
+  }
+
+  const deleteItem = (id) => {
+    setItems([...items.filter(i => i.id !== id)])
+  }
+
+  const clearForm = () => {
+    setSelectedItem(null)
   }
 
   return (
@@ -34,11 +58,15 @@ function App() {
       <div className='app'>
         <LeftPanel>
           <Header />
-          <JournalAddButton />
-          <JournalList items={mapItems(items)} />
+          <JournalAddButton clearForm={clearForm} />
+          <JournalList items={mapItems(items)} setSelectedItem={setSelectedItem} />
         </LeftPanel>
         <Body>
-          <JournalForm onSubmit={addItem} />
+          <JournalForm
+            onSubmit={addItem}
+            data={selectedItem}
+            onDelete={deleteItem}
+          />
         </Body>
       </div>
     </UserContextProvider>

@@ -6,13 +6,25 @@ import { INITIAL_STATE, formReducer } from './JournalForm.state'
 import Input from '../Input/Input'
 import { UserContext } from '../../context/user.context'
 
-function JournalForm({ onSubmit }) {
+function JournalForm({ onSubmit, data, onDelete }) {
   const [formState, dispatchForm] = useReducer(formReducer, INITIAL_STATE)
   const { isValid, isFormReadyToSubmit, values } = formState
   const titleRef = useRef()
   const dateRef = useRef()
   const postRef = useRef()
   const { userId } = useContext(UserContext)
+
+  useEffect(() => {
+    if (!data) {
+      dispatchForm({ type: 'CLEAR' })
+      dispatchForm({
+        type: 'SET_VALUE', payload: { userId }
+      })
+    }
+    dispatchForm({
+      type: 'SET_VALUE', payload: { ...data }
+    })
+  }, [data])
 
   const focusError = (isValid) => {
     switch (true) {
@@ -46,8 +58,11 @@ function JournalForm({ onSubmit }) {
     if (isFormReadyToSubmit) {
       onSubmit(values, userId)
       dispatchForm({ type: 'CLEAR' })
+      dispatchForm({
+        type: 'SET_VALUE', payload: { userId }
+      })
     }
-  }, [isFormReadyToSubmit, onSubmit, values])
+  }, [isFormReadyToSubmit, onSubmit, values, userId])
 
   useEffect(() => {
     dispatchForm({
@@ -68,6 +83,14 @@ function JournalForm({ onSubmit }) {
     dispatchForm({ type: 'SUBMIT' })
   }
 
+  const deleteJournalItem = () => {
+    onDelete(data.id)
+    dispatchForm({ type: 'CLEAR' })
+    dispatchForm({
+      type: 'SET_VALUE', payload: { userId }
+    })
+  }
+
   return (
     <form className={s['journal-form']} onSubmit={addJournalItem}>
       <div className={s.title_container}>
@@ -80,7 +103,18 @@ function JournalForm({ onSubmit }) {
           onChange={onChange}
           appearance='title'
         />
-        <img src="/public/archive.svg" alt="archive icon" />
+        {data?.id &&
+          <button
+            className={s['delete']}
+            type='button'
+            onClick={deleteJournalItem}
+          >
+            <img
+              src="/public/archive.svg"
+              alt="archive icon"
+            />
+          </button>
+        }
       </div>
       <div className={s['wrapper_date_tag']}>
         <div className={s['form-row']}>
@@ -94,7 +128,7 @@ function JournalForm({ onSubmit }) {
             ref={dateRef}
             isValid={isValid.date}
             id="date"
-            value={values.date}
+            value={values.date ? new Date(values.date).toISOString().slice(0, 10) : ''}
             onChange={onChange}
           />
         </div>
@@ -124,7 +158,7 @@ function JournalForm({ onSubmit }) {
           )}
       >
       </textarea>
-      <Button text="Сохранить" />
+      <Button>Сохранить</Button>
     </form>
   )
 }
